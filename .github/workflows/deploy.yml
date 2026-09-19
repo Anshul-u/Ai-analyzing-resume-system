@@ -1,0 +1,37 @@
+name: AI Resume Analyzer CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    name: Lint & Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-[#]version: '20'
+      - name: Install Backend Dependencies
+        run: |
+          cd server
+          npm ci
+      - name: Run Backend Unit Tests
+        run: |
+          cd server
+          npm test
+
+  build-docker:
+    name: Build & Verify Docker Images
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Backend Container
+        run: docker build -t ai-resume-backend ./server
+      - name: Build Frontend Container
+        run: docker build -t ai-resume-frontend ./client
