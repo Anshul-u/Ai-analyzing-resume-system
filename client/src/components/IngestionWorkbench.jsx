@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Upload, FileText, Check, Sparkles, FileCode, Eye, Sliders } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getApiUrl } from '../utils/api';
 
 export const IngestionWorkbench = ({ onRunAnalysis, isAnalyzing }) => {
   const [activeTab, setActiveTab] = useState('01'); // '01' = Resume Parser, '02' = Job Spec
@@ -43,7 +44,7 @@ export const IngestionWorkbench = ({ onRunAnalysis, isAnalyzing }) => {
     formData.append('resume', selectedFile);
 
     try {
-      const response = await fetch('/api/resume/upload', {
+      const response = await fetch(getApiUrl('/api/resume/upload'), {
         method: 'POST',
         body: formData,
       });

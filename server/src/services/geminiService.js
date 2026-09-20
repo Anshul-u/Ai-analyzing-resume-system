@@ -18,14 +18,16 @@ export const analyzeResumeWithGemini = async (resumeText, jobDescriptionText, ma
     const prompt = buildFencedAnalysisPrompt(resumeText, jobDescriptionText, matchedSkills, missingSkills);
 
     const response = await model.generateContent(prompt);
-    const responseText = response.response.text() || '';
-    
-    // Clean JSON response (strip markdown wrappers if any)
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
-    }
-    return JSON.parse(responseText);
+    let rawText = response.response.text() || '';
+
+    // Strip markdown code fences (```json ... ``` or ``` ...) and surrounding whitespace
+    rawText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+
+    // Extract JSON object substring if extra commentary is present
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    const cleanJsonString = jsonMatch ? jsonMatch[0] : rawText;
+
+    return JSON.parse(cleanJsonString);
   } catch (error) {
     console.warn(`[GEMINI API WARNING] API call failed (${error.message}). Returning fallback synthesis.`);
     return generateFallbackAISynthesis(matchedSkills, missingSkills);

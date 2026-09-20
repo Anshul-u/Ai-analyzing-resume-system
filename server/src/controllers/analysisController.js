@@ -74,8 +74,12 @@ export const runFullSynthesis = async (req, res) => {
       data: analysisDoc,
     });
   } catch (error) {
-    console.error('[ANALYSIS ERROR]', error);
-    res.status(500).json({ success: false, error: error.message });
+    console.error("ANALYSIS ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+      stack: error.stack,
+    });
   }
 };
 

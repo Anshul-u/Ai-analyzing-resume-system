@@ -8,6 +8,8 @@ import { SkillMatrix } from './components/SkillMatrix';
 import { ScoringBreakdown } from './components/ScoringBreakdown';
 import { ExecutionRoadmap } from './components/ExecutionRoadmap';
 import { SkeletonLoader } from './components/SkeletonLoader';
+import { calculateDynamicAnalysis } from './utils/dynamicScoring';
+import { getApiUrl } from './utils/api';
 
 export default function App() {
   const [analysis, setAnalysis] = useState(null);
@@ -32,7 +34,7 @@ export default function App() {
   const handleRunAnalysis = async (inputData) => {
     setIsAnalyzing(true);
     try {
-      const response = await fetch('/api/analysis/analyze', {
+      const response = await fetch(getApiUrl('/api/analysis/analyze'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(inputData),
@@ -45,69 +47,18 @@ export default function App() {
           scrollToSection('horizontal-shelf');
         }, 300);
       } else {
-        alert(result.error || 'Analysis failed.');
+        // Fallback to client-side dynamic evaluation if backend returns error
+        const dynamicResult = calculateDynamicAnalysis(inputData);
+        setAnalysis(dynamicResult);
+        setTimeout(() => {
+          scrollToSection('horizontal-shelf');
+        }, 300);
       }
     } catch (error) {
-      console.error('[ANALYSIS FETCH ERROR]', error);
-      // Fallback local mock evaluation
-      const mockResult = {
-        jobTitle: inputData.jobTitle || 'Senior Developer',
-        jobDescriptionText: inputData.jobDescriptionText,
-        compatibilityScore: 84,
-        scoringBreakdown: {
-          skillsMatchRatio: 85,
-          experienceMatch: 90,
-          keywordFrequency: 75,
-          educationMatch: 100,
-          projectRelevance: 80,
-          weightedSkillsScore: 34.0,
-          weightedExpScore: 22.5,
-          weightedKeywordScore: 11.25,
-          weightedEduScore: 10.0,
-          weightedProjectScore: 8.0,
-        },
-        matchedSkills: ['React', 'Node.js', 'Express', 'MongoDB', 'JavaScript', 'HTML', 'CSS', 'TypeScript'],
-        missingSkills: ['Docker', 'AWS', 'Terraform', 'Kubernetes'],
-        aiAnalysis: {
-          strengths: [
-            'Solid MERN stack foundations with full-stack REST API experience',
-            'Strong background in client-side React and state management',
-            'Degree qualification matches standard computer science requirements',
-          ],
-          weaknesses: [
-            'No explicit mention of container orchestration (Kubernetes, Docker Compose)',
-            'Lacks production IaC tooling experience (Terraform)',
-          ],
-          keywordRecommendations: ['Docker', 'AWS S3', 'Terraform', 'CI/CD Pipelines'],
-          roadmap: [
-            {
-              phase: 'WEEKS 01–02',
-              topic: 'Containerization Fundamentals (Docker)',
-              actions: [
-                'Master Dockerfile creation for React & Express services',
-                'Build multi-container orchestration setups using Docker Compose',
-              ],
-            },
-            {
-              phase: 'WEEKS 03–04',
-              topic: 'Infrastructure as Code (Terraform & AWS)',
-              actions: [
-                'Write declarative Terraform files for AWS S3 and EC2 provisioning',
-                'Implement lifecycle auto-deletion policies for uploaded document storage',
-              ],
-            },
-            {
-              phase: 'WEEKS 05–06',
-              topic: 'Automated CI/CD & Production Testing',
-              actions: [
-                'Configure GitHub Actions workflow for automated linting, testing, and deployment',
-                'Deploy production containers to AWS EC2 instance with CloudWatch monitoring',
-              ],
-            },
-          ],
-        },
-      };
-      setAnalysis(mockResult);
+      console.warn('[ANALYSIS FETCH WARNING] Backend unavailable. Executing client-side dynamic evaluation:', error.message);
+      // Execute 100% dynamic analysis on real input strings
+      const dynamicResult = calculateDynamicAnalysis(inputData);
+      setAnalysis(dynamicResult);
       setTimeout(() => {
         scrollToSection('horizontal-shelf');
       }, 300);
