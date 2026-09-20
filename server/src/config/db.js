@@ -9,7 +9,7 @@ export const connectDB = async () => {
   try {
     const connStr = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/ai_resume_analyzer';
     const conn = await mongoose.connect(connStr, {
-      serverSelectionTimeoutMS: 2000,
+      serverSelectionTimeoutMS: 15000,
     });
     console.log(`[DATABASE] MongoDB Connected: ${conn.connection.host}`);
     return conn;
