@@ -1,16 +1,17 @@
-# Multi-Stage Node.js Alpine Production Build
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
+FROM node:20-alpine
 
-FROM node:20-alpine AS runner
 WORKDIR /app
-ENV NODE_ENV=production
-ENV PORT=5000
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app ./
+
+# Copy shared folder into the container
+COPY shared/ ./shared/
+
+# Copy server package files and install dependencies
+COPY server/package*.json ./server/
+WORKDIR /app/server
+RUN npm install
+
+# Copy server source code
+COPY server/ ./
 
 EXPOSE 5000
-CMD ["node", "src/server.js"]
+CMD ["npm", "run", "dev"]
