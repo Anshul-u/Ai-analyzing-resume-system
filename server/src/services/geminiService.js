@@ -14,7 +14,7 @@ export const analyzeResumeWithGemini = async (resumeText, jobDescriptionText, ma
 
   try {
     const ai = new GoogleGenerativeAI(apiKey);
-    const model = ai.getGenerativeModel({ model: 'gemini-pro' });
+    const model = ai.getGenerativeModel({ model: 'gemini-3.5-flash' });
     const prompt = buildFencedAnalysisPrompt(resumeText, jobDescriptionText, matchedSkills, missingSkills);
 
     const response = await model.generateContent(prompt);
