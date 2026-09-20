@@ -1,9 +1,6 @@
 import { extractTextFromBuffer, categorizeResumeEntities } from '../services/parserService.js';
 import { uploadToS3 } from '../config/s3.js';
 import Resume from '../models/Resume.js';
-import { checkIsMockDb } from '../config/db.js';
-
-const mockResumes = [];
 
 export const uploadResume = async (req, res) => {
   try {
@@ -30,24 +27,6 @@ export const uploadResume = async (req, res) => {
     const s3Result = await uploadToS3(buffer, originalname, mimetype);
 
     const fileType = originalname.endsWith('.pdf') ? 'pdf' : originalname.endsWith('.docx') ? 'docx' : 'text';
-
-    if (checkIsMockDb()) {
-      const mockResume = {
-        _id: 'res_' + Date.now(),
-        fileName: originalname,
-        fileType,
-        s3Url: s3Result.location,
-        rawText,
-        parsedData,
-        uploadedAt: new Date(),
-      };
-      mockResumes.push(mockResume);
-
-      return res.status(201).json({
-        success: true,
-        data: mockResume,
-      });
-    }
 
     const resumeDoc = await Resume.create({
       userId: req.user ? req.user.id : null,

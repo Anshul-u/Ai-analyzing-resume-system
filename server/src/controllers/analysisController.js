@@ -3,9 +3,6 @@ import { analyzeResumeWithGemini } from '../services/geminiService.js';
 import { categorizeResumeEntities } from '../services/parserService.js';
 import Analysis from '../models/Analysis.js';
 import Resume from '../models/Resume.js';
-import { checkIsMockDb } from '../config/db.js';
-
-const mockAnalyses = [];
 
 export const runFullSynthesis = async (req, res) => {
   try {
@@ -50,19 +47,6 @@ export const runFullSynthesis = async (req, res) => {
       createdAt: new Date(),
     };
 
-    if (checkIsMockDb()) {
-      const mockDoc = {
-        _id: 'analysis_' + Date.now(),
-        ...payload,
-      };
-      mockAnalyses.unshift(mockDoc);
-
-      return res.status(201).json({
-        success: true,
-        data: mockDoc,
-      });
-    }
-
     const analysisDoc = await Analysis.create({
       userId: req.user ? req.user.id : null,
       resumeId: resumeId || null,
@@ -85,10 +69,6 @@ export const runFullSynthesis = async (req, res) => {
 
 export const getAnalysisHistory = async (req, res) => {
   try {
-    if (checkIsMockDb()) {
-      return res.json({ success: true, data: mockAnalyses });
-    }
-
     const query = req.user ? { userId: req.user.id } : {};
     const analyses = await Analysis.find(query).sort({ createdAt: -1 }).limit(10);
 

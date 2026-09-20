@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { connectDB, checkIsMockDb } from './config/db.js';
+import { connectDB } from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import resumeRoutes from './routes/resumeRoutes.js';
 import analysisRoutes from './routes/analysisRoutes.js';
@@ -27,7 +27,6 @@ app.get('/api/health', (req, res) => {
     status: 'ONLINE',
     service: 'AI Resume Analyzer API Engine',
     timestamp: new Date().toISOString(),
-    mockDatabase: checkIsMockDb(),
   });
 });
 
