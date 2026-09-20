@@ -10,12 +10,9 @@ services:
     environment:
       - PORT=5000
       - NODE_ENV=production
-      - MONGO_URI=mongodb+srv://ANSHUL:anshul@cluster0.v6xpqto.mongodb.net/ai_resume_db?appName=Cluster0
+      - MONGO_URI=${MONGO_URI}
       - JWT_SECRET=production_jwt_secret_key_32_bytes_min
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-    depends_on:
-      mongo:
-        condition: service_healthy
     restart: always
 
   frontend:
@@ -27,20 +24,3 @@ services:
     depends_on:
       - backend
     restart: always
-
-  mongo:
-    image: mongo:7.0
-    container_name: ai_resume_mongo
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: always
-
-volumes:
-  mongo_data:
